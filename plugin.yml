@@ -1,6 +1,8 @@
 name: TagShop
 main: hototya\shop\TagShop
-version: 1.0.0
-api: [3.0.0, 3.0.0-ALPHA9]
+version: 1.0.1
+api:
+  - 3.0.0-ALPHA9
+  - 3.0.0-ALPHA10
 load: POSTWORLD
 author: hototya
