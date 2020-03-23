@@ -1,4 +1,10 @@
 <?php
+
+/*
+hototya様のTagShopの経済をMoneySystemに差し替えただけです
+by.xtakumatutix
+*/
+
 namespace hototya\shop;
 
 use pocketmine\plugin\PluginBase;
@@ -19,7 +25,7 @@ use pocketmine\tile\Sign;
 use pocketmine\utils\Config;
 use pocketmine\Player;
 
-use onebone\economyapi\EconomyAPI;
+use metowa1227\moneysystem\api\core\API;
 
 class TagShop extends PluginBase implements Listener
 {
@@ -36,7 +42,7 @@ class TagShop extends PluginBase implements Listener
     {
         if (!file_exists($this->getDataFolder())) mkdir($this->getDataFolder(), 0744, true);
         $this->fid = mt_rand(0, 999999);
-        $this->api = EconomyAPI::getInstance();
+        $this->api = API::getInstance();
         $this->config = new Config($this->getDataFolder() . "nametag.json", Config::JSON);
         $this->shop = new Config($this->getDataFolder() . "shop.json", Config::JSON);
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
@@ -48,8 +54,8 @@ class TagShop extends PluginBase implements Listener
         $name = $player->getName();
         if ($this->config->exists($name)) {
             $tag = $this->config->get($name);
-            $player->setNameTag("[" . $tag . "§f] " . $name);
-            $player->setDisplayName("[" . $tag . "§f] " . $name);
+            $player->setNameTag("[" . $tag . "§r§f] " . $name);
+            $player->setDisplayName("[" . $tag . "§r§f] " . $name);
         }
     }
 
@@ -91,7 +97,7 @@ class TagShop extends PluginBase implements Listener
             if ($text[0] === self::SHOP_TITLE) {
                 if ($this->shop->exists($pos)) {
                     $price = (int) str_replace("§6値段 : ", "", $text[2]);
-                    if ($price <= $this->api->myMoney($player)) {
+                    if ($price <= $this->api->get($player)) {
                         $tag = str_replace("§f称号 : ", "", $text[1]);
                         $data = [
                             "type" => "modal",
@@ -137,9 +143,9 @@ class TagShop extends PluginBase implements Listener
                     $price = $this->prebuy[$name][1];
                     $this->config->set($name, $this->prebuy[$name][0]);
                     $this->config->save();
-                    $this->api->reduceMoney($player, $price);
-                    $player->setNameTag("[" . $tag . "§f] " . $name);
-                    $player->setDisplayName("[" . $tag . "§f] " . $name);
+                    $this->api->reduce($player, $price);
+                    $player->setNameTag("[" . $tag . "§r§f] " . $name);
+                    $player->setDisplayName("[" . $tag . "§r§f] " . $name);
                     $player->sendMessage(self::SHOP_TITLE . "称号の購入が完了しました。");
                     unset($this->prebuy[$name]);
                 }
